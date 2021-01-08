@@ -2,20 +2,16 @@ package main
 
 import (
 	"fmt"
-	"io"
+	"log"
 	"net/http"
 	"server/handlers"
 )
 
-func mainHandler(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(w, "Hello World")
-}
-
 func main() {
 	http.HandleFunc("/health-check", handlers.HealthCheckHandler)
-	http.HandleFunc("/", mainHandler)
+	http.HandleFunc("/", http.NotFound)
 
 	fmt.Println("Listening on port 5050...")
 
-	http.ListenAndServe(":5050", nil)
+	log.Fatal(http.ListenAndServe(":5050", nil))
 }
