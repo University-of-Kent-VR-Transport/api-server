@@ -4,3 +4,5 @@ services:
     build: .
     ports:
       - 5050:5050
+    environment:
+      - DFT_SECRET=${DFT_SECRET}

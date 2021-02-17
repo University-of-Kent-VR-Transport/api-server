@@ -10,6 +10,9 @@ areas.
 This is the API server for the project. The client repository can be found on
 [GitHub](https://github.com/University-of-Kent-VR-Transport/vr-client).
 
+## API Documentation
+API documentation can be found in the [docs](./docs)
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your
@@ -24,6 +27,12 @@ Git v^2.0.0
 Docker v^20.10.0
 Docker Compose v^1.21.0
 ```
+
+#### Required Secrets
+Create an `.env` file in the root of the repository containing your DFT_SECRET.
+A DFT_SECRET can be obtained from the 
+[Department for Transport website](https://data.bus-data.dft.gov.uk/account/signup/).
+**Important: Do not commit your `.env` file**
 
 ### Installation
 
