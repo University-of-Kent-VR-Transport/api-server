@@ -44,6 +44,8 @@ type MonitoredVehicleJourney struct {
 	DirectionRef             string          `xml:"DirectionRef"`
 	PublishedLineName        string          `xml:"PublishedLineName"`
 	OperatorRef              string          `xml:"OperatorRef"`
+	OriginRef                string          `xml:"OriginRef"`
+	OriginName               string          `xml:"OriginName"`
 	DestinationRef           string          `xml:"DestinationRef"`
 	DestinationName          string          `xml:"DestinationName"`
 	OriginAimedDepartureTime string          `xml:"OriginAimedDepartureTime"`
