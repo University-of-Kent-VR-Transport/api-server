@@ -4,3 +4,5 @@ services:
     build: .
     ports:
       - 5050:5050
+    environment:
+      - MAPBOX_TOKEN=${MAPBOX_TOKEN} 

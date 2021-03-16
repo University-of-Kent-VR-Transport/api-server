@@ -2,18 +2,24 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"net/http"
+	"os"
+	"log"
+	"server/handlers"
 )
 
-func mainHandler(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(w, "hello world")
+func main() {
+	if _, isPresent := os.LookupEnv("MAPBOX_TOKEN"); isPresent == false {
+		log.Panic("No MAPBOX_TOKEN provided. Exiting...")
 }
 
-func main() {
-	http.HandleFunc("/", mainHandler)
+	router := http.NewServeMux()
+
+	router.HandleFunc("/", handlers.IndexHandler)
 
 	fmt.Println("Listening on port 5050...")
 
-	http.ListenAndServe(":5050", nil)
+	if err := http.ListenAndServe(":5050", router); err != nil {
+		fmt.Println(err)
+	}
 }
