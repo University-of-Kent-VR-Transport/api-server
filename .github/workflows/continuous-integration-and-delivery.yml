@@ -3,8 +3,7 @@ name: CI/CD
 on: [push]
 
 jobs:
-  test:
-    name: Tests
+  tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -34,7 +33,7 @@ jobs:
 
   deploy:
     if: github.ref == 'refs/heads/master'
-    needs: [test]
+    needs: [tests]
     runs-on: ubuntu-latest
 
     steps:
