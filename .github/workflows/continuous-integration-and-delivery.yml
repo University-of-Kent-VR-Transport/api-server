@@ -66,5 +66,3 @@ jobs:
 
     - name: Remove any unused images
       run: ssh production 'cd app && docker image prune'
-
-      name: Test Suite
