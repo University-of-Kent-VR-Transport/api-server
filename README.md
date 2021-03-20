@@ -1,5 +1,8 @@
 # API-Server
 
+[![CI/CD](https://github.com/University-of-Kent-VR-Transport/api-server/actions/workflows/continuous-integration-and-delivery.yml/badge.svg?branch=master)](https://github.com/University-of-Kent-VR-Transport/api-server/actions/workflows/continuous-integration-and-delivery.yml)
+[![codecov](https://codecov.io/gh/University-of-Kent-VR-Transport/api-server/branch/master/graph/badge.svg?token=PL3PK3N5RC)](https://codecov.io/gh/University-of-Kent-VR-Transport/api-server)
+
 ## About
 
 This is a final year group project for the module
@@ -34,12 +37,25 @@ A DFT_SECRET can be obtained from the
 [Department for Transport website](https://data.bus-data.dft.gov.uk/account/signup/).
 **Important: Do not commit your `.env` file**
 
+#### Development
+
+For development you'll also need:
+```
+go v1.15
+```
+
 ### Installation
 
+#### Development
 A step by step series of examples that tell you how to get a development
 environment running.
 
-Once the repo has been cloned. Build and run the project using Docker Compose:
+Once the repo has been cloned. Build the project:
+```
+go build -o bin/server server.go
+```
+
+To run the project using Docker Compose:
 
 ```
 docker-compose up --detach --build
@@ -52,7 +68,26 @@ the ability to rebuild the web service when you make a change in development:
 docker-compose up --detach --build web
 ```
 
-By default the project expose port [`5050`](http://localhost:5050/).
+By default the project exposes port [`5050`](http://localhost:5050/).
+
+To stop the containers simple run:
+
+```
+docker-compose down
+```
+
+#### Production
+A step by step series of examples that tell you how to get a development
+environment running.
+
+Once the repo has been cloned. Build and run the project using docker-compose.
+This will start all the images required for the project detached:
+
+```
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-deps --remove-orphans
+```
+
+By default the project exposes port [`80`](http://localhost:80/).
 
 To stop the containers simple run:
 
