@@ -30,7 +30,6 @@ jobs:
           flags: unittests
           file: coverage.out
           fail_ci_if_error: true
-          wait_for_ci: false
 
   deploy:
     if: github.ref == 'refs/heads/master'
