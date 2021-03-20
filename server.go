@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 )
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
@@ -15,5 +16,8 @@ func main() {
 
 	fmt.Println("Listening on port 5050...")
 
-	http.ListenAndServe(":5050", nil)
+	if err := http.ListenAndServe(":5050", nil); err != nil {
+		fmt.Fprintln(os.Stderr, "Service crashed")
+		fmt.Fprintln(os.Stderr, err)
+	}
 }
