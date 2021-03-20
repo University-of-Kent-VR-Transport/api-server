@@ -1,3 +1,5 @@
 .git
 .gitignore
 .github/
+.codecov.yml
+README.md

@@ -1,11 +1,39 @@
-name: Continuous Delivery
+name: CI/CD
 
-on:
-  push:
-    branches: [master]
+on: [push]
 
 jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2.3.4
+
+      - name: Setup Go environment
+        uses: actions/setup-go@v2.1.3
+        with:
+          go-version: '^1.15.0'
+        
+      - name: Run unit tests and generate coverage report
+        run: go test ./... -cover -coverprofile=coverage.out
+
+      - name: Upload coverage results
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage
+          path: coverage.out
+
+      - name: Save coverage report to CodeCov
+        uses: codecov/codecov-action@v1.1.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: unittests
+          file: coverage.out
+          fail_ci_if_error: true
+
   deploy:
+    if: github.ref == 'refs/heads/master'
+    needs: [tests]
     runs-on: ubuntu-latest
 
     steps:
