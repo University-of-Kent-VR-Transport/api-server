@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"server/handlers"
+	"os"
 )
 
 func main() {
@@ -13,5 +14,8 @@ func main() {
 
 	fmt.Println("Listening on port 5050...")
 
-	log.Fatal(http.ListenAndServe(":5050", nil))
+	if err := http.ListenAndServe(":5050", nil); err != nil {
+		fmt.Fprintln(os.Stderr, "Service crashed")
+		fmt.Fprintln(os.Stderr, err)
+	}
 }

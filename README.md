@@ -28,12 +28,25 @@ Docker v^20.10.0
 Docker Compose v^1.21.0
 ```
 
+#### Development
+
+For development you'll also need:
+```
+go v1.15
+```
+
 ### Installation
 
+#### Development
 A step by step series of examples that tell you how to get a development
 environment running.
 
-Once the repo has been cloned. Build and run the project using Docker Compose:
+Once the repo has been cloned. Build the project:
+```
+go build -o bin/server server.go
+```
+
+To run the project using Docker Compose:
 
 ```
 docker-compose up --detach --build
@@ -46,7 +59,26 @@ the ability to rebuild the web service when you make a change in development:
 docker-compose up --detach --build web
 ```
 
-By default the project expose port [`5050`](http://localhost:5050/).
+By default the project exposes port [`5050`](http://localhost:5050/).
+
+To stop the containers simple run:
+
+```
+docker-compose down
+```
+
+#### Production
+A step by step series of examples that tell you how to get a development
+environment running.
+
+Once the repo has been cloned. Build and run the project using docker-compose.
+This will start all the images required for the project detached:
+
+```
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-deps --remove-orphans
+```
+
+By default the project exposes port [`80`](http://localhost:80/).
 
 To stop the containers simple run:
 
