@@ -1,0 +1,42 @@
+name: Continuous Delivery
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Configure SSH
+      run: |
+        mkdir -p ~/.ssh/
+        echo "$SSH_KEY" > ~/.ssh/production.key
+        chmod 600 ~/.ssh/production.key
+        cat >>~/.ssh/config <<END
+        Host production
+          HostName $SSH_HOST
+          User $SSH_USER
+          IdentityFile ~/.ssh/production.key
+          StrictHostKeyChecking no
+        END
+      env:
+        SSH_HOST: ${{ secrets.SSH_HOST }}
+        SSH_USER: ${{ secrets.SSH_USER }}
+        SSH_KEY: ${{ secrets.SSH_KEY }}
+
+    - name: Change to app directory
+      run: ssh production 'mkdir -p app && cd app'
+
+    - name: Pull new changes
+      run: ssh production 'git pull origin master'
+
+    - name: Pull images
+      run: ssh production 'docker-compose pull'
+
+    - name: Restart containers with the new images and removes unused containers
+      run: ssh production 'docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-deps --remove-orphans'
+
+    - name: Remove any unused images
+      run: ssh production 'docker image prune'
