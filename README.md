@@ -2,6 +2,7 @@
 
 [![CI/CD](https://github.com/University-of-Kent-VR-Transport/api-server/actions/workflows/continuous-integration-and-delivery.yml/badge.svg?branch=master)](https://github.com/University-of-Kent-VR-Transport/api-server/actions/workflows/continuous-integration-and-delivery.yml)
 [![codecov](https://codecov.io/gh/University-of-Kent-VR-Transport/api-server/branch/master/graph/badge.svg?token=PL3PK3N5RC)](https://codecov.io/gh/University-of-Kent-VR-Transport/api-server)
+[![Icicle Coverage](https://codecov.io/gh/University-of-Kent-VR-Transport/api-server/branch/master/graphs/icicle.svg?token=PL3PK3N5RC)](https://app.codecov.io/gh/University-of-Kent-VR-Transport/api-server/branch/master)
 
 ## About
 
