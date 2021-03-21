@@ -14,6 +14,11 @@ import (
 	"strings"
 )
 
+type boundingBoxResponse struct {
+	Buses  []types.Bus
+}
+
+
 // BoundingBoxHandler retieives all the buses in a given bounding box
 func BoundingBoxHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -74,13 +79,14 @@ func BoundingBoxHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	buses := transformers.Bus(resp)
+	var response boundingBoxResponse = boundingBoxResponse{Buses: buses}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
 		w.WriteHeader(http.StatusOK)
 
-		if err := json.NewEncoder(w).Encode(buses); err != nil {
+		if err := json.NewEncoder(w).Encode(response); err != nil {
 			log.Printf("Error while encoding bus result: %s", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 		}
@@ -92,7 +98,7 @@ func BoundingBoxHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	gz := gzip.NewWriter(w)
-	if err := json.NewEncoder(gz).Encode(buses); err != nil {
+	if err := json.NewEncoder(gz).Encode(response); err != nil {
 		log.Printf("Error while compressing bus result: %s", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 	}

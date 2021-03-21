@@ -24,7 +24,7 @@ const getBusLocations = (bounds) => {
 	return new Promise((resolve, reject) => {
 		fetch(requestUrl)
 			.then(response => response.json())
-			.then(unformattedBuses => resolve(unformattedBuses))
+			.then(response => resolve(response.Buses))
 			.catch(error => reject(error))
 	})
 }
