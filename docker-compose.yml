@@ -2,3 +2,5 @@ version: "3"
 services:
   web:
     build: .
+    environment:
+      - DFT_SECRET=${DFT_SECRET}

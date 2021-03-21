@@ -1,5 +1,7 @@
 .git
 .gitignore
 .github/
-.codecov.yml
+.env
+codecov.yml
+bin/
 README.md

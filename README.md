@@ -1,7 +1,8 @@
 # API-Server
 
-![Test Suite](https://github.com/University-of-Kent-VR-Transport/api-server/workflows/Test%20Suite/badge.svg)
+[![CI/CD](https://github.com/University-of-Kent-VR-Transport/api-server/actions/workflows/continuous-integration-and-delivery.yml/badge.svg?branch=master)](https://github.com/University-of-Kent-VR-Transport/api-server/actions/workflows/continuous-integration-and-delivery.yml)
 [![codecov](https://codecov.io/gh/University-of-Kent-VR-Transport/api-server/branch/master/graph/badge.svg?token=PL3PK3N5RC)](https://codecov.io/gh/University-of-Kent-VR-Transport/api-server)
+[![Icicle Coverage](https://codecov.io/gh/University-of-Kent-VR-Transport/api-server/branch/master/graphs/icicle.svg?token=PL3PK3N5RC)](https://app.codecov.io/gh/University-of-Kent-VR-Transport/api-server/branch/master)
 
 ## About
 
@@ -12,6 +13,9 @@ areas.
 
 This is the API server for the project. The client repository can be found on
 [GitHub](https://github.com/University-of-Kent-VR-Transport/vr-client).
+
+## API Documentation
+API documentation can be found in the [docs](./docs)
 
 ## Getting Started
 
@@ -27,6 +31,12 @@ Git v^2.0.0
 Docker v^20.10.0
 Docker Compose v^1.21.0
 ```
+
+#### Required Secrets
+Create an `.env` file in the root of the repository containing your DFT_SECRET.
+A DFT_SECRET can be obtained from the 
+[Department for Transport website](https://data.bus-data.dft.gov.uk/account/signup/).
+**Important: Do not commit your `.env` file**
 
 #### Development
 
@@ -56,7 +66,7 @@ This will start all the images required for the project detached. This enables
 the ability to rebuild the web service when you make a change in development:
 
 ```
-docker-compose up --detach --build web
+go build -o bin/server server.go && docker-compose restart web
 ```
 
 By default the project exposes port [`5050`](http://localhost:5050/).
