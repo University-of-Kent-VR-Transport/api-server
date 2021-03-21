@@ -4,3 +4,4 @@ services:
     build: .
     environment:
       - DFT_SECRET=${DFT_SECRET}
+      - MAPBOX_TOKEN=${MAPBOX_TOKEN}

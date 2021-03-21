@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en" class="has-navbar-fixed-top">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>BusVR - Virtual Reality Data Visualisation</title>
+
+	<script
+		src='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js'
+		async
+	></script>
+	<link
+		href='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css'
+		rel='stylesheet'
+		media="print"
+		onload="this.media='all'"
+	/>
+	<link
+		href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"
+		rel="stylesheet"
+	>
+</head>
+<body>
+	<nav class="navbar is-transparent is-fixed-top is-spaced">
+		<div class="container">
+			<div class="navbar-brand">
+				<a class="navbar-item" href="/">BusVR</a>
+			</div>
+		
+			<div class="navbar-menu">	
+				<div class="navbar-end">
+					<div class="navbar-item">
+						<div class="field is-grouped">
+							<p class="control">
+								<a class="button" href="/docs">
+									<span class="icon">
+										<img src="/static/icons/book-light.svg" class="p-1" />
+									</span>
+									<span>Documentation</span>
+								</a>
+							</p>
+							<p class="control">
+								<a class="button is-primary" href="/download">
+									<span class="icon">
+										<img
+											src="/static/icons/download-light.svg"
+											class="p-1"
+											style="filter: invert(1)"
+										/>
+									</span>
+									<span>Download</span>
+								</a>
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</nav>
+
+	<section class="hero is-primary is-medium">
+		<div class="hero-body">
+			<div class="container">
+				<p class="title">
+					BusVR
+				</p>
+				<p class="subtitle">
+					Virtual Reality Data Visualisation
+				</p>
+			</div>
+		</div>
+	</section>
+	
+	<noscript>
+		<section class="section">
+			<div class="container">
+				<article class="message is-warning">
+					<div class="message-header">
+						<p>JavaScript disabled</p>
+					</div>
+					<div class="message-body">
+						Please enable JavaScript to view the interactive map.
+					</div>
+				</article>
+			</div>
+		</section>
+	</noscript>
+
+	<section class="section is-hidden" id="web-gl-not-supported-message">
+		<div class="container">
+			<article class="message is-warning">
+				<div class="message-header">
+					<p>Unable to display map - Browser not supported</p>
+					<button
+						class="delete"
+						aria-label="close"
+						onclick="hideMessage('message-container')"
+					></button>
+				</div>
+				<div class="message-body">
+					<p>Your browser does not support Mapbox GL.</p>
+					<p>
+						Please verify your device supports
+						<a href="https://get.webgl.org/" target="_blank">WebGL</a> and it is
+						enabled.
+					</p>
+				</div>
+			</article>
+		</div>
+	</section>
+
+	<section class="section">
+    <div class="container">
+			<div class="card">
+				<div class="card-image">
+					<div class="image is-2by1" id="map"></div>
+				</div>
+			</div>
+    </div>
+  </section>
+
+	<section class="section is-hidden" id="message-section">
+		<div class="container">
+			<article class="message is-warning" id="message-container">
+				<div class="message-header">
+					<p>Failed to get bus data</p>
+					<button
+						class="delete"
+						aria-label="close"
+						onclick="hideMessage('message-container')"
+					></button>
+				</div>
+				<div class="message-body">
+					<p id="message-body">Could not get bus data.</p>
+					<div id="message-button-container" class="field mt-3">
+						<p class="control">
+							<button
+								id="message-button"
+								class="button"
+								onClick="retryMessage()"
+							>
+								Try again
+							</button>
+						</p>
+					</div>
+				</div>
+			</article>
+		</div>
+	</section>
+
+	<section class="section">
+    <div class="container">
+			<div class="columns">
+				<div class="column">
+					<h2 class="title">Project description</h2>
+					<p>
+						The project aims to create an application to help understand and
+						visualise 3d data, it will do this by taking advantage of virtual
+						reality equipment. The client will be implemented using Unity as it
+						includes robust VR controls and supports many different virtual
+						reality devices. To display map information on the client it will
+						use Mapbox as it offers a broad level of customisation of its maps.
+						Bus data is made available by the Department for Transport and
+						includes real-time location data of all public buses in England. A
+						server will be used as a layer between the Department for Transport
+						API and the client to reformat and add extra data points for the
+						client to display.
+					</p>
+				</div>
+				<div class="column">
+					<h2 class="title">Results</h2>
+					<p>
+						Our project's purpose was to create an application that could show
+						real-time bus location data used in a virtual reality client. As
+						planned, we have developed this. In its current state, we call the
+						Department for Transports API from a Docker server written in GoLang
+						that can then be called by Unity and displayed on the map. On the
+						client-side,  we will display current data about the target bus,
+						such as the current occupancy level, route, route times, etc.
+					</p>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<footer class="footer">
+		<div class="container">
+			<div class="content has-text-centered">
+				<p>
+					<strong>BusVR</strong> by
+					<a
+						href="https://henrybrown0.com"
+						target="_blank"
+					>Henry Brown</a>,
+					<a
+						href="https://github.com/the-dark-beat"
+						target="_blank"
+					>Alex Fry</a>,
+					<a
+						href="https://github.com/Wildcastle117"
+						target="_blank"
+					>Joshua Lewis-Powell</a>.
+				</p>
+			</div>
+		</div>
+	</footer>
+
+	<script>
+		const myWorker = new Worker('/static/scripts/web-worker.js');
+		const message = {
+			section: document.getElementById("message-section"),
+			container: document.getElementById("message-container"),
+			body: document.getElementById("message-body"),
+			buttonContainer: document.getElementById("message-button-container"),
+			button: document.getElementById("message-button"),
+		};
+		let map = null;
+		let buses = [];
+		let busLocations = [];
+		let attemptsFailed = 0;
+		
+		myWorker.onmessage = function(event) {
+			if (event.data.error != null) {
+				attemptsFailed += 1;				
+
+				displayError();
+			} else {
+				attemptsFailed = 0;
+				message.section.classList.add("is-hidden");
+
+				const {
+					add,
+					update,
+					remove,
+				} = event.data.buses;
+
+				for (let addIndex = 0; addIndex < add.length; addIndex++) {
+					busLocations[add[addIndex].ID] = createMarker(
+						add[addIndex].Location.Longitude,
+						add[addIndex].Location.Latitude
+					);
+				}
+
+				for (let updateIndex = 0; updateIndex < update.length; updateIndex++) {
+					updateBusId = update[updateIndex].ID;
+
+					if (busLocations[updateBusId] != null) {
+						busLocations[updateBusId].setLngLat([
+							update[updateIndex].Location.Longitude,
+							update[updateIndex].Location.Latitude,
+						]);
+					} else {
+						busLocations[updateBusId] = createMarker(
+							update[updateIndex].Location.Longitude,
+							update[updateIndex].Location.Latitude,
+						);
+					}
+				}
+
+				for (let removeIndex = 0; removeIndex < remove.length; removeIndex++) {
+					if (busLocations[remove[removeIndex].ID] != null) {
+						busLocations[remove[removeIndex].ID].remove();
+					}
+				}
+
+				buses = [...add, ...update];
+
+				window.setTimeout(sendMessageToWorker, 5000);
+			}
+
+			message.button.disabled = false;
+			message.button.classList.remove("is-loading");
+		}
+
+		function sendMessageToWorker() {
+			if (map) {
+				myWorker.postMessage({ bounds: map.getBounds(), currentBuses: buses });
+			}
+		}
+
+		function retryMessage() {
+			message.button.disabled = true;
+			message.button.classList.add("is-loading");
+
+			sendMessageToWorker();
+		}
+
+		function hideMessage(messageId) {
+			document.getElementById(messageId).classList.add('is-hidden');
+		}
+
+		function createMarker(longitude, latitude) {
+			if (!mapboxgl || !map) return null;
+
+			return new mapboxgl.Marker().setLngLat([longitude, latitude]).addTo(map);
+		}
+
+		function displayError() {
+			if (attemptsFailed >= 3) {
+				message.container.classList.add("is-danger");
+				message.container.classList.remove("is-warning");
+				message.buttonContainer.classList.add("is-hidden");
+				message.button.disabled = true;
+				message.body.innerText =
+					"Could not get bus data. Please refresh the page to try again.";
+			} else {
+				message.container.classList.add("is-warning");
+				message.container.classList.remove("is-danger");
+				message.buttonContainer.classList.remove("is-hidden");
+				message.button.disabled = false;
+				message.body.innerText =
+					"Could not get bus data. Please check your connection and try again.";
+			}
+
+			message.section.classList.remove("is-hidden");
+		}
+
+		window.onload = () => {
+			if (!mapboxgl.supported()) {
+				document
+					.getElementById("web-gl-not-supported-message")
+					.classList
+					.remove("is-hidden");
+			} else {
+				mapboxgl.accessToken = "{{.AccessToken}}";
+				map = new mapboxgl.Map({
+					container: "map",
+					style: "{{.Style}}",
+					zoom: 14,
+					center: [1.08, 51.279],
+					interactive: true,
+				});
+
+				sendMessageToWorker();
+			}
+		}
+	</script>
+</body>
+</html>
