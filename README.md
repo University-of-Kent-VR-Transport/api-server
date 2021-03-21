@@ -66,7 +66,7 @@ This will start all the images required for the project detached. This enables
 the ability to rebuild the web service when you make a change in development:
 
 ```
-docker-compose up --detach --build web
+go build -o bin/server server.go && docker-compose restart web
 ```
 
 By default the project exposes port [`5050`](http://localhost:5050/).
