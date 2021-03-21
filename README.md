@@ -33,9 +33,9 @@ Docker Compose v^1.21.0
 ```
 
 #### Required Secrets
-Create an `.env` file in the root of the repository containing your DFT_SECRET.
-A DFT_SECRET can be obtained from the 
-[Department for Transport website](https://data.bus-data.dft.gov.uk/account/signup/).
+Create an `.env` file in the root of the repository containing your secrets:
+- `DFT_SECRET` [Department for Transport](https://data.bus-data.dft.gov.uk/account/settings/)
+- `MAPBOX_TOKEN` [Mapbox](https://account.mapbox.com/access-tokens)
 **Important: Do not commit your `.env` file**
 
 #### Development
@@ -85,7 +85,7 @@ Once the repo has been cloned. Build and run the project using docker-compose.
 This will start all the images required for the project detached:
 
 ```
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-deps --remove-orphans
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build --detach --no-deps --remove-orphans
 ```
 
 By default the project exposes port [`80`](http://localhost:80/).
