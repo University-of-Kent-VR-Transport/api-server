@@ -60,11 +60,8 @@ jobs:
     - name: Pull images
       run: ssh production 'cd app && docker-compose pull'
 
-    - name: Build images
-      run: ssh production 'cd app && docker-compose build'
-
     - name: Restart containers with the new images and removes unused containers
-      run: ssh production 'cd app && docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-deps --remove-orphans'
+      run: ssh production 'cd app && docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build --detach --no-deps --remove-orphans'
 
     - name: Remove any unused images
       run: ssh production 'cd app && docker image prune -f'
