@@ -27,7 +27,7 @@ func Bus(siri types.Siri) []types.Bus {
 			if lastUpdated.After(cutOfTime) {
 				var newBus types.Bus
 
-				newBus.ID = bus.ItemIdentifier
+				newBus.ID = bus.MonitoredVehicleJourney.VehicleRef
 				newBus.Route = types.BusRoute{
 					ID:   bus.MonitoredVehicleJourney.LineRef,
 					Name: bus.MonitoredVehicleJourney.PublishedLineName,

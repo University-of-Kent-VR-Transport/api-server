@@ -48,7 +48,7 @@ const sortBuses = (currentBuses, updatedBuses) => {
 		} else {
 			// update bus
 			busesToUpdate.push(updatedBus);
-			busesToRemove.slice(busToRemoveIndex, 1);
+			busesToRemove.splice(busToRemoveIndex, 1);
 		}
 	}
 
