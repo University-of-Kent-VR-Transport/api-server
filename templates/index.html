@@ -238,7 +238,7 @@
 				for (let addIndex = 0; addIndex < add.length; addIndex++) {
 					busLocations[add[addIndex].ID] = createMarker(
 						add[addIndex].Location.Longitude,
-						add[addIndex].Location.Latitude
+						add[addIndex].Location.Latitude,
 					);
 				}
 
@@ -249,18 +249,16 @@
 						busLocations[updateBusId].setLngLat([
 							update[updateIndex].Location.Longitude,
 							update[updateIndex].Location.Latitude,
-						]);
-					} else {
-						busLocations[updateBusId] = createMarker(
-							update[updateIndex].Location.Longitude,
-							update[updateIndex].Location.Latitude,
-						);
+						]).addTo(map);
 					}
 				}
 
 				for (let removeIndex = 0; removeIndex < remove.length; removeIndex++) {
-					if (busLocations[remove[removeIndex].ID] != null) {
-						busLocations[remove[removeIndex].ID].remove();
+					removeBusId = remove[removeIndex].ID;
+
+					if (busLocations[removeBusId]) {
+						busLocations[removeBusId].remove();
+						busLocations.splice(removeBusId, 1)
 					}
 				}
 
