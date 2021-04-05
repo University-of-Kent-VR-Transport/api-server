@@ -16,6 +16,10 @@ func main() {
 		fmt.Fprintln(os.Stderr, "No MAPBOX_TOKEN provided")
 		os.Exit(1)
 	}
+	if _, isPresent := os.LookupEnv("DATABASE_URL"); isPresent == false {
+		fmt.Fprintln(os.Stderr, "No DATABASE_URL provided")
+		os.Exit(1)
+	}
 
 	router := http.NewServeMux()
 

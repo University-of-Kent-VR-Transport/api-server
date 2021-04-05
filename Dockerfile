@@ -7,6 +7,9 @@ WORKDIR /app
 # Copy all files from the current directory to the app directory
 COPY . /app
 
+# Get dependcies
+RUN go get
+
 # Build application
 RUN go build -o bin/server server.go
 

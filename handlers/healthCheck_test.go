@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"errors"
 )
 
 func TestHealthCheckHandler(t *testing.T) {
@@ -22,11 +23,11 @@ func getRequest(t *testing.T) {
 
 	handler.ServeHTTP(responseRecorder, req)
 
-	if status := responseRecorder.Code; status != http.StatusOK {
+	if status := responseRecorder.Code; status != http.StatusInternalServerError {
 		t.Errorf(
 			"handler returned wrong status code: got %v want %v",
 			status,
-			http.StatusOK,
+			http.StatusInternalServerError,
 		)
 	}
 
@@ -40,7 +41,7 @@ func getRequest(t *testing.T) {
 		)
 	}
 
-	expected := `{"alive": true}`
+	expected := `{"database": false}`
 	if responseRecorder.Body.String() != expected {
 		t.Errorf(
 			"handler returned unexpected body: got %v want %v",
@@ -86,5 +87,51 @@ func postRequest(t *testing.T) {
 			responseRecorder.Body.String(),
 			expected,
 		)
+	}
+}
+
+var pingMock func() error
+
+type databaseMock struct{}
+
+func (db databaseMock) Ping() error {
+	return pingMock()
+}
+
+func Test_testDatabaseConnection(t *testing.T) {
+	type args struct {
+		pingResult error
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "Connection to database is valid",
+			args: args{
+				pingResult: nil,
+			},
+			want: true,
+		},
+		{
+			name: "Connection to database is invalid",
+			args: args{
+				pingResult: errors.New(""),
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var db databaseMock
+			pingMock = func() error {
+				return tt.args.pingResult
+			}
+
+			if got := testDatabaseConnection(db); got != tt.want {
+				t.Errorf("testDatabaseConnection() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }

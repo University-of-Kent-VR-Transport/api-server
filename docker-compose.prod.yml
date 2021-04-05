@@ -6,3 +6,5 @@ services:
     restart: always
     environment:
       PRODUCTION: 'true'
+  db:
+    restart: always

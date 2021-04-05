@@ -2,6 +2,25 @@ version: "3"
 services:
   web:
     build: .
+    depends_on:
+      - db
     environment:
+      - DATABASE_URL=postgres://docker:${DB_DOCKER_PASSWORD}@db:5432/docker?sslmode=disable
       - DFT_SECRET=${DFT_SECRET}
       - MAPBOX_TOKEN=${MAPBOX_TOKEN}
+  db:
+    image: "postgres:13"
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "root" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - APP_DB_NAME=docker
+      - APP_DB_USER=docker
+      - APP_DB_PASS=${DB_DOCKER_PASSWORD}
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d/
