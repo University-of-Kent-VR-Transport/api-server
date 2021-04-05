@@ -30,6 +30,7 @@ func main() {
 	router.Handle("/download", http.RedirectHandler("https://github.com/University-of-Kent-VR-Transport/vr-client/releases", 301))
 
 	router.HandleFunc("/api/get-bus-locations", handlers.BoundingBoxHandler)
+	router.HandleFunc("/api/bus-stop", handlers.BusStops)
 	router.HandleFunc("/api/update-naptan", handlers.UpdateBusStops)
 	router.HandleFunc("/api/job/", handlers.GetBackgroundJobStatus)
 

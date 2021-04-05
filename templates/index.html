@@ -20,6 +20,18 @@
 		href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"
 		rel="stylesheet"
 	>
+
+	<style>
+		.table th, .table td {
+			vertical-align: middle;
+		}
+		.table td div {
+			text-align: center;
+		}
+		.table td div img {
+			max-height: 2em;
+		}
+	</style>
 </head>
 <body>
 	<nav class="navbar is-transparent is-fixed-top is-spaced">
@@ -62,12 +74,8 @@
 	<section class="hero is-primary is-medium">
 		<div class="hero-body">
 			<div class="container">
-				<p class="title">
-					BusVR
-				</p>
-				<p class="subtitle">
-					Virtual Reality Data Visualisation
-				</p>
+				<h1 class="title">BusVR</h1>
+				<h2 class="subtitle">Virtual Reality Data Visualisation</h2>
 			</div>
 		</div>
 	</section>
@@ -112,9 +120,42 @@
 
 	<section class="section">
     <div class="container">
-			<div class="card">
-				<div class="card-image">
-					<div class="image is-2by1" id="map"></div>
+			<div class="columns is-desktop">
+				<div class="column is-9-desktop is-10-fullhd">
+					<div class="card">
+						<div class="card-image">
+							<div class="image is-2by1" id="map"></div>
+						</div>
+					</div>
+				</div>
+				<div class="column">
+					<h3 class="title is-3">Legend</h3>
+					<table class="table is-striped is-hoverable is-fullwidth">
+						<tbody>
+							<tr>
+								<td>
+									<div>
+										<image
+											alt="Bus marker"
+											src="/static/icons/bus-marker.svg"
+										/>
+									</div>
+								</td>
+								<th>Bus</th>
+							</tr>
+							<tr>
+								<td>
+									<div>
+										<image
+											alt="Bus stop marker"
+											src="/static/icons/bus-stop-marker.svg"
+										/>
+									</div>
+								</td>
+								<th>Bus Stop</th>
+							</tr>
+						</tbody>
+					</table>
 				</div>
 			</div>
     </div>
@@ -153,7 +194,7 @@
     <div class="container">
 			<div class="columns">
 				<div class="column">
-					<h2 class="title">Project description</h2>
+					<h3 class="title">Project description</h3>
 					<p>
 						The project aims to create an application to help understand and
 						visualise 3d data, it will do this by taking advantage of virtual
@@ -169,7 +210,7 @@
 					</p>
 				</div>
 				<div class="column">
-					<h2 class="title">Results</h2>
+					<h3 class="title">Results</h3>
 					<p>
 						Our project's purpose was to create an application that could show
 						real-time bus location data used in a virtual reality client. As
@@ -218,6 +259,8 @@
 		let map = null;
 		let buses = [];
 		let busLocations = [];
+		let busStops = [];
+		let isFetchingBusStops = false;
 		let attemptsFailed = 0;
 		
 		myWorker.onmessage = function(event) {
@@ -277,7 +320,38 @@
 			}
 		}
 
-		function retryMessage() {
+		function getBusStops(bounds) {
+			const resourceURI = '/api/bus-stop';
+			const requestUrl = `${resourceURI}?minLongitude=${bounds._sw.lng}&minLatitude=${bounds._sw.lat}&maxLongitude=${bounds._ne.lng}&maxLatitude=${bounds._ne.lat}`;
+
+			fetch(requestUrl)
+				.then(response => response.json())
+				.then((response) => {
+					for (let index = 0; index < response.BusStops.length; index++) {
+						if (!busStops[response.BusStops[index].ID]) {
+							new mapboxgl
+								.Marker({
+									color: "#9c88ff",
+									scale: 0.3,
+								})
+								.setLngLat([
+									response.BusStops[index].Longitude,
+									response.BusStops[index].Latitude
+								])
+								.setPopup(
+									new mapboxgl.Popup({ offset: [0, -15] })
+										.setHTML(`<span>${response.BusStops[index].Name}</span>`)
+								)
+								.addTo(map);
+
+							busStops[response.BusStops[index].ID] = true;
+						}
+					}
+				})
+				.catch(error => console.error(error))
+		}
+
+		function retryMessage() {	
 			message.button.disabled = true;
 			message.button.classList.add("is-loading");
 
@@ -291,7 +365,13 @@
 		function createMarker(longitude, latitude) {
 			if (!mapboxgl || !map) return null;
 
-			return new mapboxgl.Marker().setLngLat([longitude, latitude]).addTo(map);
+			return new mapboxgl
+				.Marker({
+					color: "#273c75",
+					scale: 0.75,
+				})
+				.setLngLat([longitude, latitude])
+				.addTo(map);
 		}
 
 		function displayError() {
@@ -331,6 +411,14 @@
 				});
 
 				sendMessageToWorker();
+
+				map.on('idle', function() {
+					if (!isFetchingBusStops) {
+						isFetchingBusStops = true;
+						getBusStops(map.getBounds());
+						isFetchingBusStops = false;
+					}
+				});
 			}
 		}
 	</script>

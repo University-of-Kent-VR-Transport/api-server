@@ -36,6 +36,8 @@ Docker Compose v^1.21.0
 Create an `.env` file in the root of the repository containing your secrets:
 - `DFT_SECRET` [Department for Transport](https://data.bus-data.dft.gov.uk/account/settings/)
 - `MAPBOX_TOKEN` [Mapbox](https://account.mapbox.com/access-tokens)
+- `DB_PASSWORD` This is the main database password for the user root
+- `DB_DOCKER_PASSWORD` This is the database password for the user docker
 **Important: Do not commit your `.env` file**
 
 #### Development
