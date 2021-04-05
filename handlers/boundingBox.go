@@ -18,7 +18,6 @@ type boundingBoxResponse struct {
 	Buses  []types.Bus
 }
 
-
 // BoundingBoxHandler retieives all the buses in a given bounding box
 func BoundingBoxHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
