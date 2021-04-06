@@ -9,8 +9,6 @@ import (
 	"testing"
 	"net/http"
 	"errors"
-
-	_ "github.com/lib/pq"
 )
 
 func Test_unZipFile(t *testing.T) {
