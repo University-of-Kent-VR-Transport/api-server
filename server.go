@@ -1,6 +1,7 @@
 package main
 
 import (
+	"server/util"
 	"fmt"
 	"net/http"
 	"server/handlers"
@@ -8,16 +9,7 @@ import (
 )
 
 func main() {
-	if _, isPresent := os.LookupEnv("DFT_SECRET"); isPresent == false {
-		fmt.Fprintln(os.Stderr, "No DFT_SECRET provided")
-		os.Exit(1)
-	}
-	if _, isPresent := os.LookupEnv("MAPBOX_TOKEN"); isPresent == false {
-		fmt.Fprintln(os.Stderr, "No MAPBOX_TOKEN provided")
-		os.Exit(1)
-	}
-	if _, isPresent := os.LookupEnv("DATABASE_URL"); isPresent == false {
-		fmt.Fprintln(os.Stderr, "No DATABASE_URL provided")
+	if !util.VerifyEnvSet() {
 		os.Exit(1)
 	}
 

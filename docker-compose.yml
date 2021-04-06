@@ -8,6 +8,7 @@ services:
       - DATABASE_URL=postgres://docker:${DB_DOCKER_PASSWORD}@db:5432/docker?sslmode=disable
       - DFT_SECRET=${DFT_SECRET}
       - MAPBOX_TOKEN=${MAPBOX_TOKEN}
+      - ADMIN_TOKEN=${ADMIN_TOKEN}
   db:
     image: "postgres:13"
     healthcheck:
