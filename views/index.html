@@ -282,6 +282,7 @@
 					busLocations[add[addIndex].ID] = createMarker(
 						add[addIndex].Location.Longitude,
 						add[addIndex].Location.Latitude,
+						add[addIndex].Route.Name,
 					);
 				}
 
@@ -321,7 +322,7 @@
 		}
 
 		function getBusStops(bounds) {
-			const resourceURI = '/api/bus-stop';
+			const resourceURI = '/api/bus-stops';
 			const requestUrl = `${resourceURI}?minLongitude=${bounds._sw.lng}&minLatitude=${bounds._sw.lat}&maxLongitude=${bounds._ne.lng}&maxLatitude=${bounds._ne.lat}`;
 
 			fetch(requestUrl)
@@ -362,7 +363,7 @@
 			document.getElementById(messageId).classList.add('is-hidden');
 		}
 
-		function createMarker(longitude, latitude) {
+		function createMarker(longitude, latitude, route) {
 			if (!mapboxgl || !map) return null;
 
 			return new mapboxgl
@@ -371,6 +372,10 @@
 					scale: 0.75,
 				})
 				.setLngLat([longitude, latitude])
+				.setPopup(
+					new mapboxgl.Popup({ offset: [0, -15] })
+						.setHTML(`<span>Route: ${route}</span>`)
+				)
 				.addTo(map);
 		}
 

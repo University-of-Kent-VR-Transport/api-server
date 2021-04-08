@@ -15,7 +15,8 @@ func main() {
 
 	router := http.NewServeMux()
 
-	fileServer := http.FileServer(http.Dir("./static"))
+	// file server
+	fileServer := http.FileServer(http.Dir("./public"))
 	router.Handle("/static/", http.StripPrefix("/static", fileServer))
 
 	router.Handle("/docs", http.RedirectHandler("https://github.com/University-of-Kent-VR-Transport/api-server/tree/master/docs", 301))
