@@ -1,4 +1,4 @@
-const uriPath = "/api/get-bus-locations"
+const uriPath = "/api/bus-locations"
 
 // onmessage receives the bounds{} and currentBuses[] on the map. It then gets
 // new buses within the bounds and returns the buses to; add, update, and remove

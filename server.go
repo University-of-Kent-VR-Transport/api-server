@@ -8,6 +8,9 @@ import (
 	"os"
 )
 
+const serverDocs = "https://github.com/University-of-Kent-VR-Transport/api-server/tree/master/docs"
+const clientReleases = "https://github.com/University-of-Kent-VR-Transport/vr-client/releases"
+
 func main() {
 	if !utils.VerifyEnvSet() {
 		os.Exit(1)
@@ -19,8 +22,9 @@ func main() {
 	fileServer := http.FileServer(http.Dir("./public"))
 	router.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	router.Handle("/docs", http.RedirectHandler("https://github.com/University-of-Kent-VR-Transport/api-server/tree/master/docs", 301))
-	router.Handle("/download", http.RedirectHandler("https://github.com/University-of-Kent-VR-Transport/vr-client/releases", 301))
+	// redirect
+	router.Handle("/docs", http.RedirectHandler(serverDocs, 301))
+	router.Handle("/download", http.RedirectHandler(clientReleases, 301))
 
 	// api routes
 	router.HandleFunc("/api/bus-locations", handlers.BusLocation)
@@ -35,8 +39,7 @@ func main() {
 	fmt.Println("Listening on port 5050...")
 
 	if err := http.ListenAndServe(":5050", router); err != nil {
-		fmt.Fprintln(os.Stderr, "Service crashed")
-		fmt.Fprintln(os.Stderr, err)
+		fmt.Fprintln(os.Stderr, "Service crashed", err)
 		os.Exit(1)
 	}
 }
