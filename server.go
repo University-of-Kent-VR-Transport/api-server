@@ -1,7 +1,7 @@
 package main
 
 import (
-	"server/util"
+	"server/utils"
 	"fmt"
 	"net/http"
 	"server/handlers"
@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	if !util.VerifyEnvSet() {
+	if !utils.VerifyEnvSet() {
 		os.Exit(1)
 	}
 
