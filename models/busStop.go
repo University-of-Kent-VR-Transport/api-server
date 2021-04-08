@@ -105,7 +105,7 @@ func GetLocationFromNaPTAN(id string) (NaptanLocation, error) {
 	}, nil
 }
 
-// Insert shit tones
+// Replace all bus stops with new ones
 func RebuildBusStops(busStops []BusStop, db *sql.DB) error {
 	ctx := context.Background()
 	txn, err := db.BeginTx(ctx, nil)

@@ -2,9 +2,9 @@ package main
 
 import (
 	"server/utils"
+	"server/handlers"
 	"fmt"
 	"net/http"
-	"server/handlers"
 	"os"
 )
 
@@ -22,13 +22,15 @@ func main() {
 	router.Handle("/docs", http.RedirectHandler("https://github.com/University-of-Kent-VR-Transport/api-server/tree/master/docs", 301))
 	router.Handle("/download", http.RedirectHandler("https://github.com/University-of-Kent-VR-Transport/vr-client/releases", 301))
 
-	router.HandleFunc("/api/get-bus-locations", handlers.BoundingBoxHandler)
-	router.HandleFunc("/api/bus-stop", handlers.BusStops)
-	router.HandleFunc("/api/update-naptan", handlers.UpdateBusStops)
-	router.HandleFunc("/api/job/", handlers.GetBackgroundJobStatus)
+	// api routes
+	router.HandleFunc("/api/bus-locations", handlers.BusLocation)
+	router.HandleFunc("/api/bus-stops", handlers.BusStop)
+	router.HandleFunc("/api/job", handlers.BackgroundJob)
+	router.HandleFunc("/api/job/", handlers.BackgroundJob)
+	router.HandleFunc("/api/health-check", handlers.HealthCheck)
 
-	router.HandleFunc("/health-check", handlers.HealthCheckHandler)
-	router.HandleFunc("/", handlers.IndexHandler)
+	// html routes
+	router.HandleFunc("/", handlers.Index)
 
 	fmt.Println("Listening on port 5050...")
 

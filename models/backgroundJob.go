@@ -68,7 +68,7 @@ func CreateBackgroundJob(jobType string, db *sql.DB) (BackgroundJob, error) {
 
 	return BackgroundJob{
 		ID: jobID,
-		URI: fmt.Sprintf("/api/jobs/%v", jobID),
+		URI: fmt.Sprintf("/api/job/%v", jobID),
 		Type: jobType,
 		Status: "RUNNING",
 		CreatedAt: createdAt,
@@ -106,7 +106,7 @@ func GetBackgroundJob(jobID uint, db sqlDB) (BackgroundJob, error) {
 
 	job := BackgroundJob{
 		ID: jobID,
-		URI: fmt.Sprintf("/api/jobs/%v", jobID),
+		URI: fmt.Sprintf("/api/job/%v", jobID),
 		Type: jobType,
 		Status: status,
 		CreatedAt: createdAt,

@@ -1,7 +1,6 @@
-package handlers
+package controllers
 
 import (
-	"encoding/json"
 	"server/models"
 	"io"
 	"log"
@@ -19,49 +18,28 @@ import (
 
 const naptanURL = "https://naptan.app.dft.gov.uk/Datarequest/naptan.ashx"
 
-type getUpdateBusStopsResponse struct {
-	Job  models.BackgroundJob
-}
-
-func UpdateBusStops(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodPost)
-		w.WriteHeader(http.StatusMethodNotAllowed)
-
-		return
-	}
-
+// UpdateBusStops updates all bus stops using the NaPTAN database and returns
+// a background job
+func UpdateBusStops() (models.BackgroundJob, error) {
 	// Set job in db
-	connectionString, _ := os.LookupEnv("DATABASE_URL")
+	connectionString := os.Getenv("DATABASE_URL")
 
 	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
 		log.Println("Couldn't connect to db", err)
 
-		w.WriteHeader(http.StatusInternalServerError)
-
-		return
+		return models.BackgroundJob{}, err
 	}
 	defer db.Close()
 
 	job, err := models.CreateBackgroundJob("UPDATE NATIONAL PUBLIC TRANSPORT ACCESS NODES", db)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, http.StatusText(http.StatusInternalServerError))
-
-		return
-	}
-
-	// Response with 202
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusAccepted)
-
-	response := getUpdateBusStopsResponse{Job: job}
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		log.Printf("Error while encoding update naptan response: %s", err.Error())
+		return models.BackgroundJob{}, err
 	}
 
 	go runUpdate(job.ID)
+
+	return job, nil
 }
 
 func runUpdate(jobID uint) {
