@@ -11,51 +11,6 @@ import (
 	"errors"
 )
 
-func Test_unZipFile(t *testing.T) {
-	type args struct {
-		zippedFolderPath string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    []byte
-		wantErr bool
-	}{
-		{
-			name: "Reads \"Hello World!\" from \"hellWorld.zip\"",
-			args: args{
-				zippedFolderPath: "testdata/helloWorld.zip",
-			},
-			want:    []byte("Hello World!\n"),
-			wantErr: false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			zippedFolder, err := ioutil.ReadFile(tt.args.zippedFolderPath)
-			if err != nil {
-				t.Fatal("Failed to read zip folder", err)
-			}
-
-			got, err := unZipFile(zippedFolder)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("unZipFile() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			defer got.Close()
-
-			fileContent, err := ioutil.ReadAll(got)
-			if err != nil {
-				t.Fatal("Failed to read unZipFile byte stream", err)
-			}
-
-			if !reflect.DeepEqual(fileContent, tt.want) {
-				t.Errorf("unZipFile() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func Test_parseXML(t *testing.T) {
 	type args struct {
 		xmlFilePath string

@@ -1,11 +1,10 @@
 package controllers
 
 import (
+	"server/utils"
 	"server/models"
 	"io"
 	"log"
-	"archive/zip"
-	"bytes"
 	"os"
 	"fmt"
 	"strings"
@@ -57,44 +56,41 @@ func runUpdate(jobID uint) {
 	// Get NaPTAN from naptanURL
 	zippedFolder, err := getBusStopsFromDFT(&http.Client{})
 	if err != nil {
-		log.Println("Failed to get NaPTAN from DFT")
+		fmt.Fprintln(os.Stderr, "Failed to get NaPTAN from DFT")
 		models.UpdateBackgroundJob(jobID, "FAILED", db)
 		return
 	}
 
-	log.Println("Fetched NaPTAN from DFT")
-
 	// UnZip folder
-	rawFile, err := unZipFile(zippedFolder)
+	rawFile, err := utils.UnZipFile(zippedFolder)
 	if err != nil {
 		log.Println("Failed to unzip folder")
 		models.UpdateBackgroundJob(jobID, "FAILED", db)
 		return
 	}
-	defer rawFile.Close()
 
-	log.Println("Unzipped folder")
-
-	// Parse xml
-	busStops, err := parseXML(rawFile)
+	file, err := rawFile[0].Open()
 	if err != nil {
-		log.Println("Failed to parse xml")
+		fmt.Fprintln(os.Stderr, "Failed to unzip folder")
 		models.UpdateBackgroundJob(jobID, "FAILED", db)
 		return
 	}
+	defer file.Close()
 
-	log.Println("Parsed XML")
-
-	fmt.Printf("Found %v stop points\n", len(busStops))
+	// Parse xml
+	busStops, err := parseXML(file)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to parse xml")
+		models.UpdateBackgroundJob(jobID, "FAILED", db)
+		return
+	}
 
 	// Insert using model
 	if err := models.RebuildBusStops(busStops, db); err != nil {
-		log.Println("Failed to rebuild bus stops")
+		fmt.Fprintln(os.Stderr, "Failed to rebuild bus stops")
 		models.UpdateBackgroundJob(jobID, "FAILED", db)
 		return
 	}
-
-	log.Println("Updated table")
 
 	// Complete background job
 	models.UpdateBackgroundJob(jobID, "COMPLETE", db)
@@ -124,27 +120,6 @@ func getBusStopsFromDFT(client httpClient) ([]byte, error) {
 	}
 
 	return body, nil
-}
-
-func unZipFile(zippedFolder []byte) (io.ReadCloser, error) {
-	zipReader, err := zip.NewReader(bytes.NewReader(zippedFolder), int64(len(zippedFolder)))
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to create zip reader", err)
-		return nil, err
-	}
-
-	fmt.Println(len(zipReader.File))
-
-	fileToUnzip := zipReader.File[0]
-	fmt.Println("Reading file:", fileToUnzip.Name)
-
-	file, err := fileToUnzip.Open()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to open zip", err)
-		return nil, err
-	}
-
-	return file, nil
 }
 
 type stopPoint struct {
