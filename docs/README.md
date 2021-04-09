@@ -17,6 +17,12 @@
 - [**`UPDATE`** `/api/bus-stops`](./api/bus-stops.md#Update)
 - [**`OPTIONS`** `/api/bus-stops`](./api/bus-stops.md#Options)
 
+### Bus Routes
+
+- [**`GET`** `/api/bus-routes`](./api/bus-routes.md#Get)
+- [**`UPDATE`** `/api/bus-routes`](./api/bus-routes.md#Update)
+- [**`OPTIONS`** `/api/bus-routes`](./api/bus-routes.md#Options)
+
 ### Background Jobs
 
 - [**`GET`** `/api/job`](./api/jobs.md#Get)

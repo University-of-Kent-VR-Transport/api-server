@@ -13,7 +13,7 @@ Returns the background job with the provided ID.
 
 ### Endpoint
 
-**`GET`** `/api/job`
+**`GET`** `/api/job/:jobID`
 
 ### Authorization Header
 
