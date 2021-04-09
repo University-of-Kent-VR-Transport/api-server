@@ -23,8 +23,10 @@ func main() {
 	router.Handle("/static/", http.StripPrefix("/static", fileServer))
 
 	// redirect
-	router.Handle("/docs", http.RedirectHandler(serverDocs, 301))
-	router.Handle("/download", http.RedirectHandler(clientReleases, 301))
+	router.Handle("/docs", http.RedirectHandler(serverDocs, http.StatusPermanentRedirect))
+	router.Handle("/download", http.RedirectHandler(clientReleases, http.StatusPermanentRedirect))
+
+	router.Handle("/api/get-bus-locations", http.RedirectHandler("/api/bus-locations", http.StatusPermanentRedirect))
 
 	// api routes
 	router.HandleFunc("/api/bus-locations", handlers.BusLocation)
