@@ -14,6 +14,8 @@ import (
 	"encoding/xml"
 	"strconv"
 	"errors"
+	"database/sql"
+	_ "github.com/lib/pq"
 )
 
 func GetRoute(lineName string, direction string, operatorID string) (models.Route, error) {
@@ -25,7 +27,48 @@ func GetRoute(lineName string, direction string, operatorID string) (models.Rout
 	return route, nil
 }
 
-func UpdateRoute(datasetID uint, httpClient httpClient, busRoute models.BusRoute) error {
+func UpdateRoute(datasetID uint, httpClient httpClient, busRoute models.BusRoute) (models.BackgroundJob, error) {
+	// start a job
+	connectionString := os.Getenv("DATABASE_URL")
+
+	db, err := sql.Open("postgres", connectionString)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Couldn't connect to db", err)
+		return models.BackgroundJob{}, err
+	}
+	defer db.Close()
+
+	job, err := models.CreateBackgroundJob("UPDATE ROUTES BY DATASET ID", db)
+	if err != nil {
+		return models.BackgroundJob{}, err
+	}
+
+	go backgroundJobWrapper(datasetID, job.ID, httpClient, busRoute)
+
+	return job, nil
+}
+
+func backgroundJobWrapper(datasetID uint, jobID uint, httpClient httpClient, busRoute models.BusRoute) {
+	connectionString := os.Getenv("DATABASE_URL")
+	status := "COMPLETE"
+
+	if err := updateRouteByDataset(datasetID, httpClient, busRoute); err != nil {
+		status = "FAILED"
+	}
+
+	db, err := sql.Open("postgres", connectionString)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Couldn't connect to db", err)
+		return
+	}
+	defer db.Close()
+
+	if err := models.UpdateBackgroundJob(jobID, status, db); err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to update background job")
+	}
+}
+
+func updateRouteByDataset(datasetID uint, httpClient httpClient, busRoute models.BusRoute) error {
 	baseUrl := "https://data.bus-data.dft.gov.uk/api/v1/dataset"
 	v := url.Values{}
 	v.Set("api_key", os.Getenv("DFT_SECRET"))

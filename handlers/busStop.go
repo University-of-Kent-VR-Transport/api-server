@@ -128,7 +128,7 @@ func (*busStopHandler) put(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update bus stops
-	jobStatus, err := controllers.UpdateBusStops()
+	job, err := controllers.UpdateBusStops()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprint(w, http.StatusText(http.StatusInternalServerError))
@@ -137,7 +137,7 @@ func (*busStopHandler) put(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Request accepted
-	response := putBusStopBody{ Job: jobStatus }
+	response := putBusStopBody{ Job: job }
 	compress := strings.Contains(r.Header.Get("Accept-Encoding"), "gzip")
 
 	utils.SendJSONResponse(w, http.StatusAccepted, compress, response)

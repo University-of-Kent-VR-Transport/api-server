@@ -135,7 +135,8 @@ func (*busRouteHandler) update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := controllers.UpdateRoute(uint(datasetID), &http.Client{}, &models.BusRoutes{}); err != nil {
+	job, err := controllers.UpdateRoute(uint(datasetID), &http.Client{}, &models.BusRoutes{})
+	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 
 		fmt.Fprint(w, http.StatusText(http.StatusInternalServerError))
@@ -143,6 +144,9 @@ func (*busRouteHandler) update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, http.StatusText(http.StatusOK))
+	// Request accepted
+	response := putBusStopBody{ Job: job }
+	compress := strings.Contains(r.Header.Get("Accept-Encoding"), "gzip")
+
+	utils.SendJSONResponse(w, http.StatusAccepted, compress, response)
 }
