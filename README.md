@@ -30,7 +30,7 @@ This is the API server for the project. The client repository can be found on
 
 ## API Documentation
 
-API documentation can be found in the [docs](./tree/master/docs)
+API documentation can be found in the [docs](./docs)
 
 ## Getting Started
 
