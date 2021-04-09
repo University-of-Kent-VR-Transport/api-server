@@ -31,6 +31,8 @@ func main() {
 	router.HandleFunc("/api/bus-stops", handlers.BusStop)
 	router.HandleFunc("/api/job", handlers.BackgroundJob)
 	router.HandleFunc("/api/job/", handlers.BackgroundJob)
+	router.HandleFunc("/api/bus-routes", handlers.BusRoutes)
+	router.HandleFunc("/api/bus-routes/", handlers.BusRoutes)
 	router.HandleFunc("/api/health-check", handlers.HealthCheck)
 
 	// html routes
