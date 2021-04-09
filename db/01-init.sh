@@ -1,0 +1,84 @@
+#!/bin/bash
+set -e
+export PGPASSWORD=$POSTGRES_PASSWORD;
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+  CREATE USER $APP_DB_USER WITH PASSWORD '$APP_DB_PASS';
+
+  CREATE DATABASE $APP_DB_NAME;
+
+	GRANT CREATE ON DATABASE $APP_DB_NAME TO $APP_DB_USER;
+
+  \connect $APP_DB_NAME $APP_DB_USER
+  BEGIN;
+    CREATE TABLE IF NOT EXISTS bus_stop (
+			id CHAR(12) NOT NULL PRIMARY KEY,
+			name VARCHAR(255) NOT NULL,
+			longitude DOUBLE PRECISION NOT NULL,
+			latitude DOUBLE PRECISION NOT NULL,
+			bearing DOUBLE PRECISION NOT NULL
+		);
+
+		CREATE TYPE job_type AS ENUM ('UPDATE NATIONAL PUBLIC TRANSPORT ACCESS NODES', 'UPDATE ROUTES BY DATASET ID');
+		CREATE TYPE status AS ENUM ('RUNNING', 'COMPLETE', 'FAILED');
+		CREATE TABLE IF NOT EXISTS background_job (
+			id SERIAL NOT NULL PRIMARY KEY,
+			type job_type NOT NULL,
+			status status NOT NULL DEFAULT 'RUNNING',
+			created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+			updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+		);
+
+		CREATE TABLE IF NOT EXISTS operator (
+			id VARCHAR(255) NOT NULL PRIMARY KEY,
+			name VARCHAR(255) NOT NULL,
+			short_name VARCHAR(255) NOT NULL
+		);
+
+		CREATE TABLE IF NOT EXISTS line (
+			id VARCHAR(255) NOT NULL PRIMARY KEY,
+			name VARCHAR(255) NOT NULL,
+			operator_id VARCHAR(255) NOT NULL,
+			FOREIGN KEY (operator_id) REFERENCES operator(id)
+		);
+
+		CREATE TYPE direction_type AS ENUM ('OUTBOUND', 'INBOUND');
+		CREATE TABLE IF NOT EXISTS journey (
+			line_id VARCHAR(255) NOT NULL,
+			route_id VARCHAR(255) NOT NULL,
+			direction direction_type NOT NULL,
+			description VARCHAR(255) NOT NULL,
+			CONSTRAINT journey_id PRIMARY KEY (line_id, route_id),
+			FOREIGN KEY (line_id) REFERENCES line(id)
+		);
+
+		CREATE TABLE IF NOT EXISTS journey_stop (
+			line_id VARCHAR(255) NOT NULL,
+			route_id VARCHAR(255) NOT NULL,
+			stop_number smallint NOT NULL,
+			bus_stop_id CHAR(12) NOT NULL,
+			CONSTRAINT journey_stop_id PRIMARY KEY (line_id, route_id, stop_number),
+			FOREIGN KEY (line_id, route_id) REFERENCES journey(line_id, route_id),
+			FOREIGN KEY (bus_stop_id) REFERENCES bus_stop(id)
+		);
+  COMMIT;
+
+	GRANT SELECT ON TABLE bus_stop TO $APP_DB_USER;
+	GRANT INSERT ON TABLE bus_stop TO $APP_DB_USER;
+	GRANT TRUNCATE ON TABLE bus_stop TO $APP_DB_USER;
+
+	GRANT SELECT ON TABLE background_job TO $APP_DB_USER;
+	GRANT INSERT ON TABLE background_job TO $APP_DB_USER;
+	GRANT UPDATE ON TABLE background_job TO $APP_DB_USER;
+
+	GRANT SELECT ON TABLE operator TO $APP_DB_USER;
+	GRANT INSERT ON TABLE operator TO $APP_DB_USER;
+
+	GRANT SELECT ON TABLE line TO $APP_DB_USER;
+	GRANT INSERT ON TABLE line TO $APP_DB_USER;
+
+	GRANT SELECT ON TABLE journey TO $APP_DB_USER;
+	GRANT INSERT ON TABLE journey TO $APP_DB_USER;
+
+	GRANT SELECT ON TABLE journey_stop TO $APP_DB_USER;
+	GRANT INSERT ON TABLE journey_stop TO $APP_DB_USER;
+EOSQL

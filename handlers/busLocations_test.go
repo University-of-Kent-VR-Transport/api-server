@@ -51,6 +51,14 @@ func Test_parseCoordinate(t *testing.T) {
 			want: types.Coordinate{},
 			wantErr: true,
 		},
+		{
+			name: "Fails to parses when no arguments are passed \"\"",
+			args: args{
+				coordinate: "",
+			},
+			want: types.Coordinate{},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

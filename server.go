@@ -1,39 +1,49 @@
 package main
 
 import (
+	"server/utils"
+	"server/handlers"
 	"fmt"
 	"net/http"
-	"server/handlers"
 	"os"
 )
 
+const serverDocs = "https://github.com/University-of-Kent-VR-Transport/api-server/tree/master/docs"
+const clientReleases = "https://github.com/University-of-Kent-VR-Transport/vr-client/releases"
+
 func main() {
-	if _, isPresent := os.LookupEnv("DFT_SECRET"); isPresent == false {
-		fmt.Fprintln(os.Stderr, "No DFT_SECRET provided")
-		os.Exit(1)
-	}
-	if _, isPresent := os.LookupEnv("MAPBOX_TOKEN"); isPresent == false {
-		fmt.Fprintln(os.Stderr, "No MAPBOX_TOKEN provided")
+	if !utils.VerifyEnvSet() {
 		os.Exit(1)
 	}
 
 	router := http.NewServeMux()
 
-	fileServer := http.FileServer(http.Dir("./static"))
+	// file server
+	fileServer := http.FileServer(http.Dir("./public"))
 	router.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	router.Handle("/docs", http.RedirectHandler("https://github.com/University-of-Kent-VR-Transport/api-server/tree/master/docs", 301))
-	router.Handle("/download", http.RedirectHandler("https://github.com/University-of-Kent-VR-Transport/vr-client/releases", 301))
+	// redirect
+	router.Handle("/docs", http.RedirectHandler(serverDocs, http.StatusPermanentRedirect))
+	router.Handle("/download", http.RedirectHandler(clientReleases, http.StatusPermanentRedirect))
 
-	router.HandleFunc("/api/get-bus-locations", handlers.BoundingBoxHandler)
-	router.HandleFunc("/health-check", handlers.HealthCheckHandler)
-	router.HandleFunc("/", handlers.IndexHandler)
+	router.Handle("/api/get-bus-locations", http.RedirectHandler("/api/bus-locations", http.StatusPermanentRedirect))
+
+	// api routes
+	router.HandleFunc("/api/bus-locations", handlers.BusLocation)
+	router.HandleFunc("/api/bus-stops", handlers.BusStop)
+	router.HandleFunc("/api/job", handlers.BackgroundJob)
+	router.HandleFunc("/api/job/", handlers.BackgroundJob)
+	router.HandleFunc("/api/bus-routes", handlers.BusRoutes)
+	router.HandleFunc("/api/bus-routes/", handlers.BusRoutes)
+	router.HandleFunc("/api/health-check", handlers.HealthCheck)
+
+	// html routes
+	router.HandleFunc("/", handlers.Index)
 
 	fmt.Println("Listening on port 5050...")
 
 	if err := http.ListenAndServe(":5050", router); err != nil {
-		fmt.Fprintln(os.Stderr, "Service crashed")
-		fmt.Fprintln(os.Stderr, err)
+		fmt.Fprintln(os.Stderr, "Service crashed", err)
 		os.Exit(1)
 	}
 }
