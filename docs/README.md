@@ -9,18 +9,18 @@
 
 ### Bus Locations
 
-- [**`GET`** `/api/bus-locations`](./api/getBusLocations.md#Get)
-- [**`OPTIONS`** `/api/bus-locations`](./api/getBusLocations.md#Options)
+- [**`GET`** `/api/bus-locations`](./api/bus-locations.md#Get)
+- [**`OPTIONS`** `/api/bus-locations`](./api/bus-locations.md#Options)
 
 ### Bus Stops
 - [**`GET`** `/api/bus-stops`](./api/bus-stops.md#Get)
-- [**`UPDATE`** `/api/bus-stops`](./api/bus-stops.md#Update)
+- [**`PUT`** `/api/bus-stops`](./api/bus-stops.md#Put)
 - [**`OPTIONS`** `/api/bus-stops`](./api/bus-stops.md#Options)
 
 ### Bus Routes
 
 - [**`GET`** `/api/bus-routes`](./api/bus-routes.md#Get)
-- [**`UPDATE`** `/api/bus-routes`](./api/bus-routes.md#Update)
+- [**`PUT`** `/api/bus-routes`](./api/bus-routes.md#Put)
 - [**`OPTIONS`** `/api/bus-routes`](./api/bus-routes.md#Options)
 
 ### Background Jobs
