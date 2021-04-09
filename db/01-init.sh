@@ -27,6 +27,39 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 			created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 			updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 		);
+
+		CREATE TABLE IF NOT EXISTS operator (
+			id VARCHAR(255) NOT NULL PRIMARY KEY,
+			name VARCHAR(255) NOT NULL,
+			short_name VARCHAR(255) NOT NULL
+		);
+
+		CREATE TABLE IF NOT EXISTS line (
+			id VARCHAR(255) NOT NULL PRIMARY KEY,
+			name VARCHAR(255) NOT NULL,
+			operator_id VARCHAR(255) NOT NULL,
+			FOREIGN KEY (operator_id) REFERENCES operator(id)
+		);
+
+		CREATE TYPE direction_type AS ENUM ('OUTBOUND', 'INBOUND');
+		CREATE TABLE IF NOT EXISTS journey (
+			line_id VARCHAR(255) NOT NULL,
+			route_id VARCHAR(255) NOT NULL,
+			direction direction_type NOT NULL,
+			description VARCHAR(255) NOT NULL,
+			CONSTRAINT journey_id PRIMARY KEY (line_id, route_id),
+			FOREIGN KEY (line_id) REFERENCES line(id)
+		);
+
+		CREATE TABLE IF NOT EXISTS journey_stop (
+			line_id VARCHAR(255) NOT NULL,
+			route_id VARCHAR(255) NOT NULL,
+			stop_number smallint NOT NULL,
+			bus_stop_id CHAR(12) NOT NULL,
+			CONSTRAINT journey_stop_id PRIMARY KEY (line_id, route_id, stop_number),
+			FOREIGN KEY (line_id, route_id) REFERENCES journey(line_id, route_id),
+			FOREIGN KEY (bus_stop_id) REFERENCES bus_stop(id)
+		);
   COMMIT;
 
 	GRANT SELECT ON TABLE bus_stop TO $APP_DB_USER;
@@ -36,4 +69,16 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	GRANT SELECT ON TABLE background_job TO $APP_DB_USER;
 	GRANT INSERT ON TABLE background_job TO $APP_DB_USER;
 	GRANT UPDATE ON TABLE background_job TO $APP_DB_USER;
+
+	GRANT SELECT ON TABLE operator TO $APP_DB_USER;
+	GRANT INSERT ON TABLE operator TO $APP_DB_USER;
+
+	GRANT SELECT ON TABLE line TO $APP_DB_USER;
+	GRANT INSERT ON TABLE line TO $APP_DB_USER;
+
+	GRANT SELECT ON TABLE journey TO $APP_DB_USER;
+	GRANT INSERT ON TABLE journey TO $APP_DB_USER;
+
+	GRANT SELECT ON TABLE journey_stop TO $APP_DB_USER;
+	GRANT INSERT ON TABLE journey_stop TO $APP_DB_USER;
 EOSQL
