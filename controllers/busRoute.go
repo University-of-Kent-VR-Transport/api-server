@@ -151,12 +151,6 @@ func parseTimetables(timetableURIs []string, httpClient httpClient, busRoute mod
 				return err
 			}
 
-			for _, line := range transXChange.lines {
-				if line.Name == "Uni1" {
-					log.Println(line.Name)
-				}
-			}
-
 			if err := updateRouteTable(transXChange, busRoute); err != nil {
 				fmt.Fprintln(os.Stderr, "Failed to update tables", err)
 				return err

@@ -272,7 +272,7 @@ func (BusRoutes *BusRoutes) InsertJourneyStops(journeyStops []JourneyStop) error
 	for _, journeyStop := range journeyStops {
 		_, err := stmt.Exec(journeyStop.LineID, journeyStop.RouteID, journeyStop.StopNumber, journeyStop.BusStopID)
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "Failed to execute insert journey stop statement", err)
+			fmt.Fprintln(os.Stderr, "Failed to execute insert journey stop statement", journeyStop.BusStopID, err)
 
 			// Consume error. Best to continue than exit
 		}
