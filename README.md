@@ -123,7 +123,7 @@ docker-compose down
 
 We use [SemVer](https://semver.org/) for versioning. For the versions available,
 see the
-[tags on this repository](https://github.com/University-of-Kent-VR-Transport/vr-client/tags).
+[tags on this repository](https://github.com/University-of-Kent-VR-Transport/api-server/tags).
 
 ## Authors
 
