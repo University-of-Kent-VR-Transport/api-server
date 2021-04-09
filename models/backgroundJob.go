@@ -22,7 +22,7 @@ type BackgroundJob struct {
 const selectRunningJob string = "SELECT id FROM background_job WHERE type = $1 AND status = 'RUNNING'"
 const insertNewJob string = "INSERT INTO background_job(type) VALUES($1) RETURNING id, created_at"
 const selectJob string = "SELECT type, status, created_at, updated_at FROM background_job WHERE id = $1"
-const updateJob string = "UPDATE background_job SET status = $1 WHERE id = $2"
+const updateJob string = "UPDATE background_job SET status = $1, updated_at = NOW() WHERE id = $2"
 
 func CreateBackgroundJob(jobType string, db *sql.DB) (BackgroundJob, error) {
 	ctx := context.Background()

@@ -86,7 +86,7 @@ func runUpdate(jobID uint) {
 	}
 
 	// Insert using model
-	if err := models.RebuildBusStops(busStops, db); err != nil {
+	if err := models.UpdateBusStops(busStops, db); err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to rebuild bus stops")
 		models.UpdateBackgroundJob(jobID, "FAILED", db)
 		return

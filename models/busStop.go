@@ -2,7 +2,6 @@ package models
 
 import (
 	"context"
-	"server/types"
 	"os"
 	"log"
 	"fmt"
@@ -24,13 +23,7 @@ type BusStop struct {
 	Bearing   float32
 }
 
-type NaptanLocation struct {
-	name string
-	coordinate types.Coordinate
-	bearing float32
-}
-
-const selectNaptanByID = "SELECT name, longitude, latitude, bearing FROM naptan WHERE atcoCode = $1"
+const selectNaptanByID = "SELECT name, longitude, latitude, bearing FROM bus_stop WHERE atcoCode = $1"
 const selectStopsWithinBounds = "SELECT id, name, longitude, latitude, bearing FROM bus_stop WHERE longitude >= $1 AND latitude >= $2 AND longitude <= $3 AND latitude <= $4 LIMIT 200"
 
 func GetBusStopWithinBounds(minLongitude float32, minLatitude float32, maxLongitude float32, maxLatitude float32) ([]BusStop, error) {
@@ -74,13 +67,13 @@ func GetBusStopWithinBounds(minLongitude float32, minLatitude float32, maxLongit
 	return busStops, nil
 }
 
-func GetLocationFromNaPTAN(id string) (NaptanLocation, error) {
+func GetLocationFromNaPTAN(id string) (BusStop, error) {
 	connectionString, _ := os.LookupEnv("DATABASE_URL")
 
 	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		return NaptanLocation{}, err
+		return BusStop{}, err
 	}
 	defer db.Close()
 
@@ -92,83 +85,106 @@ func GetLocationFromNaPTAN(id string) (NaptanLocation, error) {
 	)
 	if err := db.QueryRow(selectNaptanByID, id).Scan(&name, &longitude, &latitude, &bearing); err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		return NaptanLocation{}, err
+		return BusStop{}, err
 	}
 
-	return NaptanLocation{
-		name: name,
-		coordinate: types.Coordinate{
-			Longitude: float32(longitude),
-			Latitude: float32(latitude),
-		},
-		bearing: float32(bearing),
+	return BusStop{
+		ID: id,
+		Name: name,
+		Longitude: float32(longitude),
+		Latitude: float32(latitude),
+		Bearing: float32(bearing),
 	}, nil
 }
 
-// Replace all bus stops with new ones
-func RebuildBusStops(busStops []BusStop, db *sql.DB) error {
+const countBusStopsSQL string = "SELECT COUNT(name) FROM bus_stop"
+const insertBusStopSQL = "INSERT INTO bus_stop(id, name, longitude, latitude, bearing) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (id) DO UPDATE SET (name, longitude, latitude, bearing) = ($2, $3, $4, $5)"
+
+func UpdateBusStops(busStops []BusStop, db *sql.DB) error {
 	ctx := context.Background()
+	var count int
+
 	txn, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		log.Println("Couldn't create database transaction", err)
 		return err
 	}
 
-	log.Println("Created transaction")
+	if err := txn.QueryRow(countBusStopsSQL).Scan(&count); err != nil {
+		fmt.Fprintln(os.Stderr, err)
 
-	if _, err := txn.Query("TRUNCATE TABLE bus_stop"); err != nil {
-		log.Fatal(err)
 		txn.Rollback()
 		return err
 	}
 
-	log.Println("Truncated bus_stop table")
-
-	stmt, err := txn.Prepare(pq.CopyIn("bus_stop", "id", "name", "longitude", "latitude", "bearing"))
-	if err != nil {
-		log.Fatal(err)
-		txn.Rollback()
-		return err
-	}
-
-	log.Println("Build prepared sql statement")
-
-	for _, busStop := range busStops {
-		_, err := stmt.Exec(busStop.ID, busStop.Name, busStop.Longitude, busStop.Latitude, busStop.Bearing)
+	if count == 0 {
+		stmt, err := txn.Prepare(pq.CopyIn("bus_stop", "id", "name", "longitude", "latitude", "bearing"))
 		if err != nil {
-			log.Fatal(err)
+			fmt.Fprintln(os.Stderr, err)
+
+			txn.Rollback()
+			return err
+		}
+
+		for _, busStop := range busStops {
+			_, err := stmt.Exec(busStop.ID, busStop.Name, busStop.Longitude, busStop.Latitude, busStop.Bearing)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+
+				stmt.Close()
+				txn.Rollback()
+				return err
+			}
+		}
+
+		if _, err := stmt.Exec(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+
 			stmt.Close()
 			txn.Rollback()
 			return err
 		}
+
+		if err := stmt.Close(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+
+			txn.Rollback()
+			return err
+		}
+
+		if err := txn.Commit(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+
+			txn.Rollback()
+			return err
+		}
+
+		return nil
 	}
 
-	log.Println("Filled prepared statement with busStops")
-
-	if _, err := stmt.Exec(); err != nil {
-		log.Fatal(err)
-		stmt.Close()
-		txn.Rollback()
-		return err
-	}
-
-	log.Println("Executed prepared statements")
-
-	if err := stmt.Close(); err != nil {
-		log.Fatal(err)
-		txn.Rollback()
-		return err
-	}
-
-	log.Println("Closed prepared statements")
-
+	// don't block the database while updating
 	if err := txn.Commit(); err != nil {
-		log.Fatal(err)
-		txn.Rollback()
+		fmt.Fprintln(os.Stderr, err)
+
 		return err
 	}
 
-	log.Println("Commited transaction")
+	stmt, err := db.Prepare(insertBusStopSQL)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+
+		return err
+	}
+	defer stmt.Close()
+
+	for _, busStop := range busStops {
+		_, err := stmt.Exec(busStop.ID, busStop.Name, busStop.Longitude, busStop.Latitude, busStop.Bearing)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+
+			return err
+		}
+	}
 
 	return nil
 }
